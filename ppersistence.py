@@ -2,6 +2,7 @@ from random import randint
 from Maquina import *
 
 
+# Função que tem probabilidade de 1% de retornar True
 def probabilidade1():
     p = randint(0, 100)
     if p == 8:
@@ -10,12 +11,12 @@ def probabilidade1():
         return False
 
 
-# Define os novos intervalos de tempo conforme o algoritmo slotted ALOHA
+# Define os novos intervalos de tempo conforme o algoritmo CSMA p-persistente, com p = 1%
 def gerarintervalo_ppersistence(maquina, intervalo):
     for i in range(0, n):
         if maquina[i].intervalo == intervalo and maquina[i].flag == 0:
             if maquina[i].colidiu == 1:
-                novointervalo = randint(maquina[i].intervalo + 1, maquina[i].intervalo + 1 + n)
+                novointervalo = randint(maquina[i].intervalo + 1, maquina[i].intervalo + 1000)
                 maquina[i].intervalo = novointervalo
                 maquina[i].colidiu = 0
                 maquina[i].transmitindo = 0
@@ -55,26 +56,27 @@ def main_ppersistence(t):
     maquina = []  # Vetor de Máquinas
     totaldetransmissoes = 0  # Total de transimissoes sem colisoes realizadas
     criarmaquinas_ppersistence(maquina)
-    intervalo = 2
+    intervalo = 2  # Canal de Tempo que esta acontecendo a simulação
     while True:
         totaldecanais += 1
+        # Transmite e verifica se colidiu
         for i in range(0, n):
             if maquina[i].flag == 0 and maquina[i].intervalo == intervalo:
                 transmissao_ppersistence(maquina, i)
-                #print(f"\nMáquina {i + 1} começou a tentar transmitir no canal de tempo {intervalo}")
         verificacolisao_ppersistence(maquina)
+        # Verifica se alguma máquina consiguiu transmitir sem colisões
         for j in range(0, n):
             if maquina[j].colidiu == 0 and maquina[j].transmitindo == 1:
                 maquina[j].flag = 1
                 maquina[j].transmitindo = 0
                 totaltempo = totaldecanais * tempo
                 totaldetransmissoes += 1
-                #print(f"Maquina {j + 1} concluiu em {intervalo}")
                 if totaldetransmissoes == 1:
                     print(f'\nForam gastos {totaltempo} s para realizar uma transmissão')
                 elif totaldetransmissoes == n:
                     print(
                         f'\nForam gastos {totaltempo} s para realizar todas as {totaldetransmissoes} transmissões')
                     return totaltempo
+        # Gera novos intervalos que as maquinas vão tentar transmitir ,e passa a simulação para o proximo canal de tempo
         gerarintervalo_ppersistence(maquina, intervalo)
         intervalo += 1

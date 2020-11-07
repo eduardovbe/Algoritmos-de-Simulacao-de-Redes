@@ -2,11 +2,11 @@ from random import randint
 from Maquina import *
 
 
-# Define os novos intervalos de tempo conforme o algoritmo slotted ALOHA
+# Define os novos intervalos de tempo conforme o algoritmo Slotted ALOHA
 def gerarintervalo_aloha(maquina, intervalo):
     for i in range(0, n):
         if maquina[i].intervalo == intervalo and maquina[i].flag == 0:
-            novointervalo = randint(maquina[i].intervalo + 1, maquina[i].intervalo + 1023)
+            novointervalo = randint(maquina[i].intervalo + 1, maquina[i].intervalo + 1000)
             maquina[i].intervalo = novointervalo
             maquina[i].colidiu = 0
             maquina[i].transmitindo = 0
@@ -42,26 +42,27 @@ def main_aloha(t):
     maquina = []  # Vetor de Máquinas
     totaldetransmissoes = 0  # Total de transimissoes sem colisoes realizadas
     criarmaquinas_aloha(maquina)
-    intervalo = 2
+    intervalo = 2  # Canal de Tempo que esta acontecendo a simulação
     while True:
         totaldecanais += 1
+        # Transmite e verifica se colidiu
         for i in range(0, n):
             if maquina[i].flag == 0 and maquina[i].intervalo == intervalo:
                 transmissao_aloha(maquina, i)
-                # print(f"\nMáquina {i + 1} começou a tentar transmitir no canal de tempo {intervalo}")
         verificacolisao_aloha(maquina)
+        # Verifica se alguma máquina consiguiu transmitir sem colisões
         for j in range(0, n):
             if maquina[j].colidiu == 0 and maquina[j].transmitindo == 1:
                 maquina[j].flag = 1
                 maquina[j].transmitindo = 0
                 totaltempo = totaldecanais * tempo
                 totaldetransmissoes += 1
-                # print(f"Maquina {j + 1} concluiu em {intervalo}")
                 if totaldetransmissoes == 1:
                     print(f'\nForam gastos {totaltempo} s para realizar uma transmissão')
                 elif totaldetransmissoes == n:
                     print(
                         f'\nForam gastos {totaltempo} s para realizar todas as {totaldetransmissoes} transmissões')
                     return totaltempo
+        # Gera novos intervalos que as maquinas vão tentar transmitir ,e passa a simulação para o proximo canal de tempo
         gerarintervalo_aloha(maquina, intervalo)
         intervalo += 1
